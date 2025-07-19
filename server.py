@@ -241,6 +241,18 @@ def cleanup_downloaded_files():
             app.logger.error(f"Cleanup error: {str(e)}")
         
         time.sleep(3600)  # Проверка каждый час
+@app.route("/api/cleanup", methods=["DELETE"])
+def cleanup_downloads():
+    try:
+        for file in os.listdir(DOWNLOAD_DIR):
+            path = os.path.join(DOWNLOAD_DIR, file)
+            if os.path.isfile(path):
+                os.remove(path)
+        app.logger.info("Downloads folder cleaned after save.")
+        return jsonify({"status": "ok", "message": "Downloads folder cleaned."})
+    except Exception as e:
+        app.logger.error(f"Cleanup failed: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     # Запускаем фоновую очистку
@@ -248,3 +260,5 @@ if __name__ == "__main__":
     cleanup_thread.start()
     
     app.run(debug=True, threaded=True, port=5000)
+    
+    
